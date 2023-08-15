@@ -1,0 +1,1 @@
+"""FIRMS pipeline."""\n
