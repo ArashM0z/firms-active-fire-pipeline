@@ -3,3 +3,5 @@
 End-to-end pipeline for NASA FIRMS active-fire data: nightly download, quality filtering, spatial join to provincial boundaries, and incremental Delta Lake landing.
 
 <!-- maint 2025-02-09 -->
+
+<!-- maint 2025-03-19 -->
