@@ -9,3 +9,5 @@ End-to-end pipeline for NASA FIRMS active-fire data: nightly download, quality f
 <!-- maint 2025-04-28 -->
 
 <!-- maint 2025-06-05 -->
+
+<!-- maint 2025-07-15 -->
