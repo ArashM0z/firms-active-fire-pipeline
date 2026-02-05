@@ -1,37 +1,51 @@
 # FIRMS Active Fire Pipeline
 
-End-to-end pipeline for NASA FIRMS active-fire data: nightly download, quality filtering, spatial join to provincial boundaries, and incremental Delta Lake landing.
+Daily ETL for NASA FIRMS active-fire detections (MODIS C6.1 + VIIRS NRT).
+Downloads the public 24-hour CSV feeds, validates every row against a
+Pydantic schema, deduplicates on (lat, lon, date, time, satellite), and
+writes a single Parquet file ready for downstream geospatial joins.
 
-<!-- maint 2025-02-09 -->
+## What's in the box
 
-<!-- maint 2025-03-19 -->
+- `FireDetection` Pydantic schema with bounds checks on lat / lon /
+  confidence / FRP and a `daynight` enum constraint.
+- `fetch_csv(url)` + `parse_csv(text)` for the FIRMS public feeds; the
+  HHMM-integer `acq_time` column is normalised to a `datetime.time`.
+- `validate(df)` drops rows that don't match the schema (logged).
+- `deduplicate(df)` collapses point duplicates emitted by overlapping
+  satellite passes.
+- `run_pipeline([urls], out)` + `firms-pipeline` CLI for the full run.
 
-<!-- maint 2025-04-28 -->
+## Quickstart
 
-<!-- maint 2025-06-05 -->
+```bash
+pip install -e ".[dev]"
+firms-pipeline --sources MODIS_C6_1_global_24h VIIRS_SNPP_NRT_global_24h \
+               --out data/firms.parquet
+```
 
-<!-- maint 2025-07-15 -->
+Output:
 
-<!-- maint 2025-08-22 -->
+```json
+{ "fetched": 13412, "valid": 13312, "deduplicated": 11920,
+  "written_to": "data/firms.parquet" }
+```
 
-<!-- maint 2025-09-30 -->
+The Parquet file plays nicely with `geopandas.read_parquet`,
+`duckdb.read_parquet`, or any Arrow-aware downstream.
 
-<!-- maint 2025-11-08 -->
+## Layout
 
-<!-- maint 2025-12-17 -->
+```
+src/firms/
+├── schema.py      # FireDetection Pydantic model
+├── pipeline.py    # fetch / parse / validate / dedupe / run_pipeline
+└── cli.py         # firms-pipeline entrypoint
+tests/             # parse, schema rejection, dedupe, run_pipeline e2e
+```
 
-<!-- maint 2024-02-22 -->
+## References
 
-<!-- maint 2024-04-13 -->
-
-<!-- maint 2024-06-04 -->
-
-<!-- maint 2024-07-27 -->
-
-<!-- maint 2024-09-17 -->
-
-<!-- maint 2024-11-07 -->
-
-<!-- maint 2024-12-29 -->
-
-<!-- maint 2023-03-10 -->
+- NASA FIRMS: https://firms.modaps.eosdis.nasa.gov/
+- MODIS C6.1 active fire user guide
+- VIIRS SNPP I-band active fire product
